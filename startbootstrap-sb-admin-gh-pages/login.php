@@ -1,0 +1,130 @@
+<?php
+  if(isset($_POST['email_user'])){
+    $email = $_POST['email_user'];
+    $host= "127.0.0.1";
+    $user= "azarot";
+    $pass= "";
+    $db= "mydb";
+    $port= 3306;
+  
+    $connection= mysqli_connect($host, $user, $pass, $db, $port)or die(mysql_error());
+    $query= "SELECT * FROM Profesor WHERE email = '$email'";
+    $result= mysqli_query($connection, $query);
+    if ($row= mysqli_fetch_assoc($result)) {
+      session_start();
+      $_SESSION["user_id"] = $row['id'];
+      $_SESSION["user_name"] = $row['nombreCompleto'];
+      $_SESSION["user_rol"] = $row['rol'];
+      $status = true;
+    }else{
+      $status = false;
+    }
+    $connection->close();
+    echo json_encode(array("status"=>$status));
+    die();
+  }
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="pruebas de PF">
+  <meta name="author" content="Aza">
+  <title>SB Admin - Start Bootstrap Template</title>
+  <!-- Bootstrap core CSS-->
+  <link href="vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <!-- Custom fonts for this template-->
+  <link href="vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+  <!-- Custom styles for this template-->
+  <link href="css/sb-admin.css" rel="stylesheet">
+  <meta name="google-signin-scope" content="profile email">
+    <meta name="google-signin-client_id" content="853788532639-kml0n403m7uunopq9v5mqt7lc89nq5to.apps.googleusercontent.com">
+    <script src="https://apis.google.com/js/platform.js" async defer></script>
+    
+</head>
+
+<body class="bg-dark">
+  <div class="container">
+    <div class="card card-login mx-auto mt-5">
+      <div class="card-header">Login</div>
+      <div class="card-body">
+        
+       <div class="g-signin2" data-onsuccess="onSignIn" data-theme="dark" align="center"></div>
+        <script>
+      function onSignIn(googleUser) {
+        // // Useful data for your client-side scripts:
+        var id_token = googleUser.getAuthResponse().id_token;
+        if(id_token != ""){
+          var profile = googleUser.getBasicProfile();
+          $.ajax({
+            url:"login.php",
+            type:"post",
+            dataType:"json",
+            data:{email_user:profile.getEmail(), id_user: profile.getId()},
+            success:function(rst){
+              console.log(rst);
+              if(rst.status){
+                window.location.href = "Home.php";
+              }else{
+                window.location.href = "register.php?name="+profile.getName()+"&email="+profile.getEmail();
+              }
+            },
+            error:function(){
+              alert("Error al consultar.");
+            }
+          });
+        }
+        /*if(id_token != ""){
+          window.location.href = "tablesGroup.php";
+        }*/
+         //var profile = googleUser.getBasicProfile();
+        //console.log("ID: " + profile.getId()); // Don't send this directly to your server!
+        // console.log('Full Name: ' + profile.getName());
+         //console.log('Given Name: ' + profile.getGivenName());
+        // console.log('Family Name: ' + profile.getFamilyName());
+        // console.log("Image URL: " + profile.getImageUrl());
+        // console.log("Email: " + profile.getEmail());
+
+        // // The ID token you need to pass to your backend:
+        // var id_token = googleUser.getAuthResponse().id_token;
+        // console.log("ID Token: " + id_token);
+        
+      };
+    </script>
+        <!--
+        <form>
+          <div class="form-group">
+            <label for="exampleInputEmail1">Email address</label>
+            <input class="form-control" id="exampleInputEmail1" type="email" aria-describedby="emailHelp" placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label for="exampleInputPassword1">Password</label>
+            <input class="form-control" id="exampleInputPassword1" type="password" placeholder="Password">
+          </div>
+          <div class="form-group">
+            <div class="form-check">
+              <label class="form-check-label">
+                <input class="form-check-input" type="checkbox"> Remember Password</label>
+            </div>
+          </div>
+          <a class="btn btn-primary btn-block" href="index.html">Login</a>
+        </form> 
+        <div class="text-center">
+          <a class="d-block small mt-3" href="register.html">Register an Account</a>
+          <a class="d-block small" href="forgot-password.html">Forgot Password?</a>
+        </div> 
+        -->
+      </div>
+    </div>
+  </div>
+  <!-- Bootstrap core JavaScript-->
+  <script src="vendor/jquery/jquery.min.js"></script>
+  <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+  <!-- Core plugin JavaScript-->
+  <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+</body>
+
+</html>
